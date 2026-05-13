@@ -17,7 +17,7 @@ import (
 	"gitlab-api-migrate/logger"
 )
 
-func MirrorRepo(sourceCfg, targetCfg appconfig.GitLabConfig, fullRepoName, destinationPath string, projectName string, log *logger.Logger) (time.Duration, string, error) {
+func MirrorRepo(sourceCfg, targetCfg appconfig.GitLabConfig, sourceRepoName, targetRepoName, destinationPath string, projectName string, log *logger.Logger) (time.Duration, string, error) {
 	start := time.Now()
 
 	if _, err := os.Stat(destinationPath); !os.IsNotExist(err) {
@@ -31,8 +31,8 @@ func MirrorRepo(sourceCfg, targetCfg appconfig.GitLabConfig, fullRepoName, desti
 		}
 	}
 
-	sourceURL := buildCloneURL(sourceCfg, fullRepoName)
-	pushURL := buildPushURL(targetCfg, fullRepoName)
+	sourceURL := buildCloneURL(sourceCfg, sourceRepoName)
+	pushURL := buildPushURL(targetCfg, targetRepoName)
 
 	sourceAuth, err := authFor(sourceCfg)
 	if err != nil {
@@ -44,7 +44,7 @@ func MirrorRepo(sourceCfg, targetCfg appconfig.GitLabConfig, fullRepoName, desti
 		return 0, "", fmt.Errorf("target auth error: %w", err)
 	}
 
-	log.Info(fmt.Sprintf("Cloning mirror from %s", maskURL(sourceURL)), map[string]string{"project": fullRepoName})
+	log.Info(fmt.Sprintf("Cloning mirror from %s", maskURL(sourceURL)), map[string]string{"project": sourceRepoName})
 
 	repo, err := git.PlainClone(destinationPath, true, &git.CloneOptions{
 		URL:      sourceURL,
@@ -59,7 +59,7 @@ func MirrorRepo(sourceCfg, targetCfg appconfig.GitLabConfig, fullRepoName, desti
 		return 0, "", fmt.Errorf("clone error: %w", err)
 	}
 
-	log.Info(fmt.Sprintf("Repository cloned successfully"), map[string]string{"project": fullRepoName})
+	log.Info(fmt.Sprintf("Repository cloned successfully"), map[string]string{"project": sourceRepoName})
 
 	var repoSize string
 	if _, err := os.Stat(destinationPath); err == nil {
@@ -79,7 +79,7 @@ func MirrorRepo(sourceCfg, targetCfg appconfig.GitLabConfig, fullRepoName, desti
 	elapsed := time.Since(start)
 	log.Info(fmt.Sprintf("Repository migrated successfully"),
 		map[string]string{
-			"project":  fullRepoName,
+			"project":  targetRepoName,
 			"duration": elapsed.Round(time.Second).String(),
 			"size":     repoSize,
 		})

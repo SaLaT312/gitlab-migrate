@@ -106,12 +106,13 @@ func main() {
 				}
 			}
 
-			fullRepoName := fmt.Sprintf("%s/%s/%s", cfg.ParentGroup, project.Namespace.FullPath, project.Path)
+			sourceRepoName := fmt.Sprintf("%s/%s", project.Namespace.FullPath, project.Path)
+			targetRepoName := fmt.Sprintf("%s/%s/%s", cfg.ParentGroup, project.Namespace.FullPath, project.Path)
 			tmpDir := filepath.Join(os.TempDir(), "gitlab-migrate-"+project.Path)
 
-			_, _, err := MirrorRepo(cfg.Source, cfg.Target, fullRepoName, tmpDir, project.Path, log)
+			_, _, err := MirrorRepo(cfg.Source, cfg.Target, sourceRepoName, targetRepoName, tmpDir, project.Path, log)
 			if err != nil {
-				log.Error(fmt.Sprintf("Failed to migrate project: %v", err), map[string]string{"project": fullRepoName})
+				log.Error(fmt.Sprintf("Failed to migrate project: %v", err), map[string]string{"project": targetRepoName})
 			}
 		}
 	}
