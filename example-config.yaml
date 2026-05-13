@@ -1,0 +1,52 @@
+# Настройки подключения к исходному GitLab (откуда переносим)
+source:
+  # URL GitLab инстанса (без /api/v4)
+  url: "https://gitlab.example.com"
+  # Personal Access Token для API
+  token: "glpat-xxxxxxxxxxxxx"
+  # Транспорт для clone: "ssh" или "https"
+  transport: "ssh"
+  # SSH порт (только для transport: ssh, по умолчанию 22)
+  ssh_port: 22
+  # Путь к SSH ключу (только для transport: ssh)
+  ssh_key: "~/.ssh/id_rsa"
+
+# Настройки подключения к целевому GitLab (куда переносим)
+target:
+  url: "https://gitlab2.example.com"
+  token: "glpat-yyyyyyyyyyyyy"
+  transport: "ssh"
+  ssh_port: 22
+  ssh_key: "~/.ssh/id_rsa"
+
+# Родительская группа в целевом GitLab, в которую будут помещены все проекты
+parent_group: "migrated"
+
+# Список групп для миграции с правилами фильтрации
+groups:
+  # Перенести все проекты и подгруппы из группы "mygroup"
+  - path: "mygroup"
+
+  # Из группы "another" перенести только проекты из подгрупп "sub1" и "sub2"
+  - path: "another"
+    include_subgroups:
+      - "sub1"
+      - "sub2"
+
+  # Из группы "legacy" перенести всё, кроме подгруппы "archive" и проекта "old-project"
+  - path: "legacy"
+    exclude_subgroups:
+      - "archive"
+    exclude_projects:
+      - "old-project"
+
+# Настройки логирования
+log:
+  # Формат: "plaintext" или "json"
+  format: "plaintext"
+  # Вывод: "stdout", "file", или "both"
+  output: "stdout"
+  # Путь к файлу лога (требуется при output: file или both)
+  # file: "/var/log/gitlab-migrate.log"
+  # Добавить unix timestamp в JSON (только для format: json)
+  # json_unix_timestamp: true
